@@ -1,33 +1,34 @@
 # Compiler
-CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -O2
+CC := g++
 
-# SDL2 Config - Lấy cờ biên dịch và liên kết từ pkg-config
-SDL2_CFLAGS := $(shell pkg-config --cflags SDL2 SDL2_image SDL2_mixer SDL2_ttf SDL2_net SDL2_gfx)
-SDL2_LIBS := $(shell pkg-config --libs SDL2 SDL2_image SDL2_mixer SDL2_ttf SDL2_net SDL2_gfx)
+# Thư mục cài đặt SDL2 trong MSYS2 (ucrt64)
+SDL2_FLAGS := $(shell pkg-config --cflags --libs sdl2 SDL2_ttf SDL2_image SDL2_mixer)
 
-# Tên file thực thi
-TARGET := main
+# Tự động tìm tất cả file .cpp trong thư mục
+SRC := $(wildcard *.cpp)
+OBJ := $(SRC:.cpp=.o)
+OUT := main.exe
 
-# Lấy danh sách tất cả các file .cpp và chuyển thành .o
-SOURCES := $(wildcard *.cpp)
-OBJECTS := $(SOURCES:.cpp=.o)
+# Lệnh mặc định: Build nếu cần rồi chạy
+all: build run
 
-# Mục tiêu mặc định: Biên dịch chương trình
-all: $(TARGET)
+# Kiểm tra file main.exe và biên dịch nếu có thay đổi
+build: $(OUT)
 
-# Biên dịch chương trình
-$(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(TARGET).exe $(SDL2_LIBS)
+$(OUT): $(OBJ)
+	@echo "🔗 Linking..."
+	$(CC) $(OBJ) -o $(OUT) $(SDL2_FLAGS)
 
-# Biên dịch từng file .cpp thành .o
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(SDL2_CFLAGS) -c $< -o $@
+	@echo "🛠️ Compiling $<..."
+	$(CC) -c $< -o $@ $(SDL2_FLAGS)
 
-# Lệnh make run để biên dịch và chạy chương trình ngay
-run: all
-	./$(TARGET).exe
+# Chạy chương trình (luôn đảm bảo bản mới nhất được build)
+run: build
+	@echo "🚀 Running $(OUT)..."
+	./$(OUT)
 
-# Xóa file biên dịch
+# Lệnh dọn dẹp file biên dịch
 clean:
-	rm -f $(OBJECTS) $(TARGET).exe
+	@echo "🗑️ Cleaning build files..."
+	rm -f $(OUT) $(OBJ)

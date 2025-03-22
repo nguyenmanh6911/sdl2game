@@ -1,92 +1,196 @@
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+
+const int SCREEN_WIDTH = 1000;
+const int SCREEN_HEIGHT = 750;
+const int TRONGLUC = 1;
+const int LUC_NHAY = -15;
+const int CHIEU_RONG_ONG = 100;
+const int KHOANG_CACH_GIUA_HAI_ONG = 200;
+const int TOC_DO_DICH_CHUYEN_CUA_ONG = 5;
+const int TOC_DO_DICH_CHUYEN_CUA_MAN = 2;
+const char* WINDOW_TITLE = "Flappy Bird";
+
+
+void logErrorAndExit(const char* msg, const char* error)
+{
+    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR, "%s: %s", msg, error);
+    SDL_Quit();
+}
+
+SDL_Window* initSDL(int SCREEN_WIDTH, int SCREEN_HEIGHT, const char* WINDOW_TITLE)
+{
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+        logErrorAndExit("SDL_Init", SDL_GetError());
+
+    SDL_Window* window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (window == nullptr) logErrorAndExit("CreateWindow", SDL_GetError());
+
+    if (!IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG))
+        logErrorAndExit( "SDL_image error:", IMG_GetError());
+
+    return window;
+}
+
+SDL_Renderer* createRenderer(SDL_Window* window)
+{
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED |
+                                              SDL_RENDERER_PRESENTVSYNC);
+    if (renderer == nullptr) logErrorAndExit("CreateRenderer", SDL_GetError());
+
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    return renderer;
+}
+
+void quitSDL(SDL_Window* window, SDL_Renderer* renderer)
+{
+    IMG_Quit();
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
+
+void renderTexture(SDL_Texture *texture, int x, int y, int w, int h, SDL_Renderer* renderer)
+{
+    SDL_Rect dest;
+    dest.x = x;
+    dest.y = y;
+    dest.w = w;
+    dest.h = h;
+    SDL_RenderCopy(renderer, texture, NULL, &dest);
+}
+
+void renderfullscreen (SDL_Texture* texture,int x,int y,SDL_Renderer* renderer) {
+    SDL_Rect dest={x,y,SCREEN_WIDTH,SCREEN_HEIGHT};
+    SDL_RenderCopy(renderer,texture,NULL,&dest);
+}
+
+SDL_Texture *loadTexture(SDL_Renderer* renderer,const char *filename)
+{
+	SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, "Loading %s", filename);
+	SDL_Texture *texture = IMG_LoadTexture(renderer, filename);
+	if (texture == NULL)
+        SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR, "Load texture %s", IMG_GetError());
+
+	return texture;
+}
+
+struct Pipe {
+    int x, height;
+};
+
+bool checkvacham(SDL_Rect a, SDL_Rect b) {
+    int leftA = a.x;
+    int rightA = a.x + a.w;
+    int topA = a.y;
+    int bottomA = a.y + a.h;
+
+    int leftB = b.x;
+    int rightB = b.x + b.w;
+    int topB = b.y;
+    int bottomB = b.y + b.h;
+
+    if (bottomA <= topB || topA >= bottomB || rightA <= leftB || leftA >= rightB) {
+        return false;
+    }
+    return true;
+}
 
 int main(int argc, char* argv[]) {
-    // Khởi tạo SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cerr << "Lỗi khi khởi tạo SDL: " << SDL_GetError() << std::endl;
+    SDL_Window* window = initSDL(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
+    SDL_Renderer* renderer = createRenderer(window);
+
+    SDL_Texture* backgroundTexture = loadTexture(renderer, "flappybackground.png");
+    SDL_Texture* birdTexture = loadTexture(renderer, "flap2.png");
+    SDL_Texture* pipeTexture = loadTexture(renderer, "pipe4.png");
+
+    if (!backgroundTexture || !birdTexture || !pipeTexture) {
         return -1;
     }
 
-    // Khởi tạo SDL2_image (hỗ trợ định dạng JPG, PNG, v.v.)
-    if (!(IMG_Init(IMG_INIT_JPG) & IMG_INIT_JPG)) {
-        std::cerr << "Lỗi khi khởi tạo SDL2_image: " << IMG_GetError() << std::endl;
-        SDL_Quit();
-        return -1;
-    }
+    SDL_Rect bird = {100, SCREEN_HEIGHT / 2, 50, 50};
 
-    // Tạo cửa sổ
-    SDL_Window* window = SDL_CreateWindow("Hiển thị ảnh JPG",
-                                          SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                          SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if (!window) {
-        std::cerr << "Lỗi khi tạo cửa sổ: " << SDL_GetError() << std::endl;
-        IMG_Quit();
-        SDL_Quit();
-        return -1;
-    }
-
-    // Tạo renderer để vẽ
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (!renderer) {
-        std::cerr << "Lỗi khi tạo renderer: " << SDL_GetError() << std::endl;
-        SDL_DestroyWindow(window);
-        IMG_Quit();
-        SDL_Quit();
-        return -1;
-    }
-
-    // Tải ảnh từ file image.jpg
-    SDL_Surface* imageSurface = IMG_Load("image.jpg");
-    if (!imageSurface) {
-        std::cerr << "Lỗi khi tải ảnh: " << IMG_GetError() << std::endl;
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        IMG_Quit();
-        SDL_Quit();
-        return -1;
-    }
-
-    // Chuyển ảnh thành texture để hiển thị
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, imageSurface);
-    SDL_FreeSurface(imageSurface); // Giải phóng surface sau khi đã có texture
-
-    if (!texture) {
-        std::cerr << "Lỗi khi tạo texture: " << SDL_GetError() << std::endl;
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        IMG_Quit();
-        SDL_Quit();
-        return -1;
-    }
-
+    int van_toc = 0;
+    int bgPosition=0;
     bool running = true;
+    bool gamestarted = false;
+
     SDL_Event event;
 
+    vector <Pipe> pipes;
+
+    srand(time(0));
+
+    for (int i = 0; i < 3; i++) {
+        int height = rand() % (SCREEN_HEIGHT - KHOANG_CACH_GIUA_HAI_ONG - 100) + 50;
+        pipes.push_back({SCREEN_WIDTH + i * 300, height});
+    }
+
     while (running) {
-        // Xử lý sự kiện (thoát khi nhấn dấu X)
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = false;
+            if (event.type == SDL_QUIT) running = false;
+            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
+                if (gamestarted==false) {
+                    gamestarted = true;
+                }
+                van_toc = LUC_NHAY;
             }
         }
 
-        // Xóa màn hình và vẽ ảnh
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
+
+        if (gamestarted) {
+            van_toc += TRONGLUC;
+            bird.y += van_toc;
+
+            bgPosition -= TOC_DO_DICH_CHUYEN_CUA_MAN;
+            if (bgPosition <= -SCREEN_WIDTH) bgPosition = 0;
+
+
+            for (int i=0;i<3;i++) {
+                pipes[i].x -= TOC_DO_DICH_CHUYEN_CUA_ONG;
+                if (pipes[i].x + CHIEU_RONG_ONG < 0) {
+                    pipes[i].x = SCREEN_WIDTH;
+                    pipes[i].height = rand() % (SCREEN_HEIGHT - KHOANG_CACH_GIUA_HAI_ONG - 100) + 50;
+                }
+
+                SDL_Rect Ong_tren={pipes[i].x,0,CHIEU_RONG_ONG,pipes[i].height};
+                SDL_Rect Ong_duoi={pipes[i].x,pipes[i].height+KHOANG_CACH_GIUA_HAI_ONG,CHIEU_RONG_ONG,SCREEN_HEIGHT-pipes[i].height-KHOANG_CACH_GIUA_HAI_ONG};
+                if (checkvacham(bird,Ong_tren)||checkvacham(bird,Ong_duoi)) running = false;
+            }
+            if (bird.y + bird.h > SCREEN_HEIGHT || bird.y < 0) running = false;
+        }
+
+
+
+        renderfullscreen(backgroundTexture,bgPosition,0,renderer);
+        renderfullscreen(backgroundTexture,bgPosition+SCREEN_WIDTH,0,renderer);
+
+
+        renderTexture(birdTexture,100,bird.y,50,50,renderer);
+
+        for (int i=0;i<3;i++) {
+            SDL_Rect Ong_tren = {pipes[i].x, 0, CHIEU_RONG_ONG, pipes[i].height};
+            SDL_RenderCopy(renderer, pipeTexture, NULL, &Ong_tren);
+
+            SDL_Rect Ong_duoi = {pipes[i].x, pipes[i].height + KHOANG_CACH_GIUA_HAI_ONG, CHIEU_RONG_ONG, SCREEN_HEIGHT - pipes[i].height - KHOANG_CACH_GIUA_HAI_ONG};
+            SDL_RenderCopyEx(renderer, pipeTexture, NULL, &Ong_duoi, 0, NULL, SDL_FLIP_VERTICAL);
+        }
+
         SDL_RenderPresent(renderer);
+        SDL_Delay(16);
     }
-
-    // Giải phóng tài nguyên
-    SDL_DestroyTexture(texture);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    IMG_Quit();
-    SDL_Quit();
-
+    SDL_DestroyTexture (backgroundTexture);
+    SDL_DestroyTexture(birdTexture);
+    SDL_DestroyTexture(pipeTexture);
+    quitSDL(window,renderer);
     return 0;
 }
