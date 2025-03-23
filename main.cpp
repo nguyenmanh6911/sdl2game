@@ -1,11 +1,9 @@
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <vector>
 #include <cstdlib>
 #include <ctime>
 using namespace std;
-
 
 const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 750;
@@ -15,8 +13,10 @@ const int CHIEU_RONG_ONG = 100;
 const int KHOANG_CACH_GIUA_HAI_ONG = 200;
 const int TOC_DO_DICH_CHUYEN_CUA_ONG = 5;
 const int TOC_DO_DICH_CHUYEN_CUA_MAN = 2;
+const int CHIEU_RONG_KHUNG_HINH= 48;
+const int CHIEU_DAI_KHUNG_HINH=36;
+const int SO_KHUNG_HINH=3;
 const char* WINDOW_TITLE = "Flappy Bird";
-
 
 void logErrorAndExit(const char* msg, const char* error)
 {
@@ -76,12 +76,12 @@ void renderfullscreen (SDL_Texture* texture,int x,int y,SDL_Renderer* renderer) 
 
 SDL_Texture *loadTexture(SDL_Renderer* renderer,const char *filename)
 {
-	SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, "Loading %s", filename);
-	SDL_Texture *texture = IMG_LoadTexture(renderer, filename);
-	if (texture == NULL)
+    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, "Loading %s", filename);
+    SDL_Texture *texture = IMG_LoadTexture(renderer, filename);
+    if (texture == NULL)
         SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR, "Load texture %s", IMG_GetError());
 
-	return texture;
+    return texture;
 }
 
 struct Pipe {
@@ -110,17 +110,18 @@ int main(int argc, char* argv[]) {
     SDL_Renderer* renderer = createRenderer(window);
 
     SDL_Texture* backgroundTexture = loadTexture(renderer, "flappybackground.png");
-    SDL_Texture* birdTexture = loadTexture(renderer, "flap2.png");
+    SDL_Texture* birdTexture = loadTexture(renderer, "flapspritesheet2.png");
     SDL_Texture* pipeTexture = loadTexture(renderer, "pipe4.png");
 
     if (!backgroundTexture || !birdTexture || !pipeTexture) {
         return -1;
     }
 
-    SDL_Rect bird = {100, SCREEN_HEIGHT / 2, 50, 50};
+    SDL_Rect bird = {100, SCREEN_HEIGHT / 2, CHIEU_RONG_KHUNG_HINH, CHIEU_DAI_KHUNG_HINH};
 
     int van_toc = 0;
     int bgPosition=0;
+    int frame=0;
     bool running = true;
     bool gamestarted = false;
 
@@ -135,6 +136,14 @@ int main(int argc, char* argv[]) {
         pipes.push_back({SCREEN_WIDTH + i * 300, height});
     }
 
+    SDL_Rect animation[SO_KHUNG_HINH];
+    for (int i=0;i<SO_KHUNG_HINH;i++) {
+        animation[i].x=i*CHIEU_RONG_KHUNG_HINH;
+        animation[i].y=0;
+        animation[i].w=CHIEU_RONG_KHUNG_HINH;
+        animation[i].h=CHIEU_DAI_KHUNG_HINH;
+    }
+
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) running = false;
@@ -146,14 +155,12 @@ int main(int argc, char* argv[]) {
             }
         }
 
-
         if (gamestarted) {
             van_toc += TRONGLUC;
             bird.y += van_toc;
 
             bgPosition -= TOC_DO_DICH_CHUYEN_CUA_MAN;
             if (bgPosition <= -SCREEN_WIDTH) bgPosition = 0;
-
 
             for (int i=0;i<3;i++) {
                 pipes[i].x -= TOC_DO_DICH_CHUYEN_CUA_ONG;
@@ -168,14 +175,13 @@ int main(int argc, char* argv[]) {
             }
             if (bird.y + bird.h > SCREEN_HEIGHT || bird.y < 0) running = false;
         }
-
-
+        SDL_RenderClear(renderer);
 
         renderfullscreen(backgroundTexture,bgPosition,0,renderer);
         renderfullscreen(backgroundTexture,bgPosition+SCREEN_WIDTH,0,renderer);
 
-
-        renderTexture(birdTexture,100,bird.y,50,50,renderer);
+        
+        SDL_RenderCopy (renderer,birdTexture,&animation[frame],&bird);
 
         for (int i=0;i<3;i++) {
             SDL_Rect Ong_tren = {pipes[i].x, 0, CHIEU_RONG_ONG, pipes[i].height};
@@ -187,6 +193,9 @@ int main(int argc, char* argv[]) {
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
+        frame++;
+        frame=(frame+1)%SO_KHUNG_HINH;
+        if (frame >= SO_KHUNG_HINH) frame=0;
     }
     SDL_DestroyTexture (backgroundTexture);
     SDL_DestroyTexture(birdTexture);
@@ -194,3 +203,13 @@ int main(int argc, char* argv[]) {
     quitSDL(window,renderer);
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
