@@ -1,8 +1,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <string>
+
 using namespace std;
 
 const int SCREEN_WIDTH = 1000;
@@ -84,6 +87,16 @@ SDL_Texture *loadTexture(SDL_Renderer* renderer,const char *filename)
     return texture;
 }
 
+void loadtext(SDL_Renderer* renderer,const char* fontstyle,int size,SDL_Color color,const char* s,SDL_Rect textrect) {
+    TTF_Font* font = TTF_OpenFont (fontstyle,size);
+    SDL_Surface* text = TTF_RenderText_Solid (font,s,color);
+    SDL_Texture* texttf = SDL_CreateTextureFromSurface(renderer,text);
+    SDL_RenderCopy(renderer,texttf,NULL,&textrect);
+
+    SDL_DestroyTexture(texttf); 
+    TTF_CloseFont(font); 
+}
+
 struct Pipe {
     int x, height;
 };
@@ -108,14 +121,23 @@ bool checkvacham(SDL_Rect a, SDL_Rect b) {
 int main(int argc, char* argv[]) {
     SDL_Window* window = initSDL(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
     SDL_Renderer* renderer = createRenderer(window);
+    TTF_Init();
 
     SDL_Texture* backgroundTexture = loadTexture(renderer, "flappybackground.png");
     SDL_Texture* birdTexture = loadTexture(renderer, "flapspritesheet2.png");
     SDL_Texture* pipeTexture = loadTexture(renderer, "pipe4.png");
+    SDL_Texture* backgroundTexture1=loadTexture(renderer, "forest.jpg");
 
-    if (!backgroundTexture || !birdTexture || !pipeTexture) {
+    if (!backgroundTexture || !birdTexture || !pipeTexture || !backgroundTexture1) {
         return -1;
     }
+
+    SDL_Color red = {255,0,0};
+
+    SDL_Rect textrect={350,50,320,120};
+    SDL_Rect textrect1={400,250,200,120};
+    SDL_Rect textrect2={365,400,300,120};
+    SDL_Rect textrect3={400,550,200,50};
 
     SDL_Rect bird = {100, SCREEN_HEIGHT / 2, CHIEU_RONG_KHUNG_HINH, CHIEU_DAI_KHUNG_HINH};
 
@@ -145,6 +167,36 @@ int main(int argc, char* argv[]) {
     }
 
     while (running) {
+        if (gamestarted ==false) {
+            SDL_Rect firstbg = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+            SDL_RenderCopy(renderer, backgroundTexture1, NULL, &firstbg);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    
+    loadtext(renderer,"8bitOperatorPlus8-Regular.ttf",48,red,"Flappy Bird",textrect);
+    loadtext (renderer,"8bitOperatorPlus8-Regular.ttf",32,red,"Start",textrect1);
+    loadtext (renderer,"8bitOperatorPlus8-Regular.ttf",32,red,"Instruction",textrect2);
+    loadtext (renderer,"8bitOperatorPlus8-Regular.ttf",32,red,"Exit",textrect3);
+
+            SDL_RenderPresent(renderer);
+    
+    
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) {
+                    running = false;
+                }
+            if (event.type == SDL_MOUSEBUTTONDOWN) {
+                    int x = event.button.x, y = event.button.y;
+                    if (x >= textrect1.x && x <= textrect1.x + textrect1.w &&
+                        y >= textrect1.y && y <= textrect1.y + textrect1.h) {
+                        gamestarted = true;
+                    }
+                    if (x >= textrect3.x && x <= textrect3.x + textrect3.w &&
+                        y >= textrect3.y && y <= textrect3.y + textrect3.h) {
+                        running = false;
+                    }
+                }
+            }
+        } else {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) running = false;
             if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
@@ -154,14 +206,12 @@ int main(int argc, char* argv[]) {
                 van_toc = LUC_NHAY;
             }
         }
-
         if (gamestarted) {
             van_toc += TRONGLUC;
             bird.y += van_toc;
 
             bgPosition -= TOC_DO_DICH_CHUYEN_CUA_MAN;
             if (bgPosition <= -SCREEN_WIDTH) bgPosition = 0;
-
             for (int i=0;i<3;i++) {
                 pipes[i].x -= TOC_DO_DICH_CHUYEN_CUA_ONG;
                 if (pipes[i].x + CHIEU_RONG_ONG < 0) {
@@ -193,23 +243,14 @@ int main(int argc, char* argv[]) {
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
-        frame++;
         frame=(frame+1)%SO_KHUNG_HINH;
         if (frame >= SO_KHUNG_HINH) frame=0;
     }
+}
     SDL_DestroyTexture (backgroundTexture);
     SDL_DestroyTexture(birdTexture);
     SDL_DestroyTexture(pipeTexture);
+    SDL_DestroyTexture(backgroundTexture1);
     quitSDL(window,renderer);
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
