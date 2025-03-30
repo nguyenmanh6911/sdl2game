@@ -4,11 +4,18 @@
 #include "declare.h"    
 #include "graphic.h"
 
-void beforeGameStarted();
 void countdown();
+
+void chooselevel();
+
+void beforeGameStarted();
+
 void ayready();
+
 void GameOver();
+
 void GameOver1();
+
 void GameOver2();
 
 #endif 

@@ -6,7 +6,7 @@
 void showInstructionWindow() {
     SDL_Window* instructionWindow = SDL_CreateWindow("How to Play",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SCREEN_WIDTH,SCREEN_HEIGHT,SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(instructionWindow, -1, SDL_RENDERER_ACCELERATED);
-   SDL_Texture* bgTexture = IMG_LoadTexture(renderer,"instruction_bg.png");
+    SDL_Texture* bgTexture = IMG_LoadTexture(renderer,"image/instruction_bg.png");
     instructionWindowRunning = true;
 
     SDL_Event event;

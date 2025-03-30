@@ -16,18 +16,13 @@ int main(int argc, char* argv[]) {
 
     while (running) {
         if (gamestarted == false) beforeGameStarted();
-        else if(gamestarted==true && gameover==false && gamemode==1) {
-            ingame();
-        } else if (gamestarted==true&&gameover==false&&gamemode==2) {
-            playmode();
-        } else if (gamestarted==true && gameover==true&&gamemode==1) {
-            GameOver();
-        }
-        else if (gameover==true && gamestarted==true&&gamemode==2&&winner==1) {
-                GameOver1();
-        } else if (gameover==true && gamestarted==true&&gamemode==2&&winner==2) {
-        GameOver2();
-        }
+        else if(gamestarted==true && gameover==false && gamemode==1&&level==1) ingame1();
+        else if(gamestarted==true && gameover==false && gamemode==1&&level==2) ingame2();
+        else if(gamestarted==true && gameover==false && gamemode==1&&level==3) ingame3();
+        else if (gamestarted==true&&gameover==false&&gamemode==2) playmode();
+        else if (gamestarted==true && gameover==true&&gamemode==1) GameOver();
+        else if (gameover==true && gamestarted==true&&gamemode==2&&winner==1) GameOver1();
+        else if (gameover==true && gamestarted==true&&gamemode==2&&winner==2) GameOver2();
     }
 
     destroy();

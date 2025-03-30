@@ -9,4 +9,8 @@ void reset();
 
 void reset1();
 
+void reset2();
+
+void resetwhileplay();
+
 #endif

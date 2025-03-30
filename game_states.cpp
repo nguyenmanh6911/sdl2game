@@ -27,7 +27,7 @@ void countdown() {
 
     SDL_RenderClear(renderer);
 
-    SDL_Texture* goTexture = IMG_LoadTexture(renderer,"hwg11.png");
+    SDL_Texture* goTexture = IMG_LoadTexture(renderer,"image/hwg11.png");
     SDL_Rect goRect = {132, 130, 736, 490};
 
     renderTexture(goTexture,goRect);
@@ -36,20 +36,59 @@ void countdown() {
     SDL_Delay(1500);
 }
 
+void chooselevel() {
+    SDL_Texture* levelMenuTexture = IMG_LoadTexture(renderer, "image/choose_level.png");
+
+    SDL_Rect level1Rect = { 320, 250, 387, 95 };
+    SDL_Rect level2Rect = { 320, 370, 387, 95 };
+    SDL_Rect level3Rect = { 320, 490, 387, 95 };
+
+    bool choosing = true;
+    SDL_Event event;
+
+    while (choosing) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                running = false;
+                choosing = false;
+            } else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                int x = event.button.x, y = event.button.y;
+                if (x >= level1Rect.x && x <= level1Rect.x + level1Rect.w && y >= level1Rect.y && y <= level1Rect.y + level1Rect.h) {
+                    level = 1;
+                    choosing = false;
+                }
+                else if (x >= level2Rect.x && x <= level2Rect.x + level2Rect.w && y >= level2Rect.y && y <= level2Rect.y + level2Rect.h) {
+                    level = 2;
+                    choosing = false;
+                }
+                else if (x >= level3Rect.x && x <= level3Rect.x + level3Rect.w && y >= level3Rect.y && y <= level3Rect.y + level3Rect.h) {
+                    level = 3;
+                    choosing = false;
+                }
+            }
+        }
+
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, levelMenuTexture, NULL, NULL);
+        SDL_RenderPresent(renderer);
+    }
+
+    SDL_DestroyTexture(levelMenuTexture);
+}
+
 void beforeGameStarted() {
     bool checksound = 1;
-
     while (gamestarted == false && running == true) {
         SDL_RenderClear(renderer);
 
         SDL_Rect firstbg = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
         SDL_RenderCopy(renderer, backgroundTexture1, NULL, &firstbg);
 
-        loadtext("UncialAntiqua-Regular.ttf",60,red,"Flappy Bird",flappybirdrect);
-        loadtext("Arial.ttf", 40, red, "1 Player", mode1);
-        loadtext("Arial.ttf", 40, red, "2 Player", mode2);
-        loadtext("Arial.ttf", 40, red, "Instruction", instructionrect);
-        loadtext("Arial.ttf", 32, red, "Exit", exit1rect);
+        loadtext("font/UncialAntiqua-Regular.ttf",60,red,"Flappy Bird",flappybirdrect);
+        loadtext("font/Arial.ttf", 40, red, "1 Player", mode1);
+        loadtext("font/Arial.ttf", 40, red, "2 Player", mode2);
+        loadtext("font/Arial.ttf", 40, red, "Instruction", instructionrect);
+        loadtext("font/Arial.ttf", 32, red, "Exit", exit1rect);
 
         if (checksound == 1) {
             renderTexture(soundimage, soundrect);
@@ -69,6 +108,7 @@ void beforeGameStarted() {
             if (event.type == SDL_MOUSEBUTTONDOWN) {
                 int x = event.button.x, y = event.button.y;
                 if (x >= mode1.x && x <= mode1.x + mode1.w && y >= mode1.y && y <= mode1.y + mode1.h) {
+                    chooselevel();
                     gamemode = 1;
                     countdown();
                     gamestarted = true;
@@ -103,7 +143,7 @@ void ayready() {
 
     SDL_RenderClear(renderer);
 
-    SDL_Texture* goTexture = IMG_LoadTexture(renderer,"hwga1.png");
+    SDL_Texture* goTexture = IMG_LoadTexture(renderer,"image/hwga1.png");
     SDL_Rect goRect = {218, 93, 564, 564};
 
     renderTexture(goTexture,goRect);
@@ -112,7 +152,7 @@ void ayready() {
 
     SDL_RenderClear(renderer);
 
-    SDL_Texture* readyTexture = IMG_LoadTexture(renderer,"ready1.png");
+    SDL_Texture* readyTexture = IMG_LoadTexture(renderer,"image/ready1.png");
     SDL_Rect readyRect = {250, 125, 500, 500};
     renderTexture(readyTexture,readyRect);
         SDL_RenderPresent(renderer);
@@ -124,10 +164,12 @@ void GameOver() {
     SDL_Rect bgRect1 = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
     SDL_RenderCopy(renderer, backgroundTexture1, NULL, &bgRect1);
 
-    loadtext("UncialAntiqua-Regular.ttf", 60, red, "Game Over", gameoverrect);
-    loadtext("Arial.ttf", 32, red, "Play again", playagainrect1);
-    loadtext("Arial.ttf", 32, red, "Exit", exit2rect);
-    loadtext("arial.ttf", 26, red, scoreText.c_str(), scorerect1);
+    loadtext("font/UncialAntiqua-Regular.ttf", 60, red, "Game Over", gameoverrect);
+    loadtext("font/Arial.ttf", 32, red, "Play again", playagainrect1);
+    loadtext("font/Arial.ttf", 32, red, "Exit", exit2rect);
+    loadtext("font/arial.ttf", 26, red, scoreText.c_str(), scorerect1);
+
+    renderTexture(homeimage, homerect);
 
     SDL_RenderPresent(renderer);
 
@@ -141,7 +183,7 @@ void GameOver() {
             } 
             else if (event.type == SDL_MOUSEBUTTONDOWN) {
                 int x = event.button.x, y = event.button.y;
-                if (x >= playagainrect.x && x <= playagainrect.x + playagainrect.w && y >= playagainrect.y && y <= playagainrect.y + playagainrect.h) {
+                if (x >= playagainrect1.x && x <= playagainrect1.x + playagainrect1.w && y >= playagainrect1.y && y <= playagainrect1.y + playagainrect1.h) {
                     ayready();
                     reset();
                     waiting = false;
@@ -150,10 +192,13 @@ void GameOver() {
                     running = false;
                     waiting = false;
                 }
+                else if (x >= homerect.x && x <= homerect.x + homerect.w && y >= homerect.y && y <= homerect.y + homerect.h) {
+                    reset2();
+                    waiting = false;
+                }
             }
             else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_m) { 
-                gamestarted = false;
-                gameover = false;
+                reset2();
                 waiting = false;
             }
         }
@@ -166,9 +211,11 @@ void GameOver1() {
     SDL_Rect bgRect1 = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
     SDL_RenderCopy(renderer, backgroundTexture1, NULL, &bgRect1);
 
-    loadtext("Arial.ttf", 60, red, "Player 1 win", gameoverrect);
-    loadtext("Arial.ttf", 32, red, "Play again", playagainrect);
-    loadtext("Arial.ttf", 32, red, "Exit", exit2rect);
+    loadtext("font/Arial.ttf", 60, red, "Player 1 win", gameoverrect);
+    loadtext("font/Arial.ttf", 32, red, "Play again", playagainrect);
+    loadtext("font/Arial.ttf", 32, red, "Exit", exit2rect);
+
+    renderTexture(homeimage, homerect);
     SDL_RenderPresent(renderer);
 
     SDL_Event event;
@@ -191,13 +238,16 @@ void GameOver1() {
                     running = false;
                     waiting = false;
                 }
-            }
-            else if (event.type == SDL_KEYDOWN){
-                if (event.key.keysym.sym == SDLK_m) {
+                else if (x >= homerect.x && x <= homerect.x + homerect.w && y >= homerect.y && y <= homerect.y + homerect.h) {
                     gamestarted = false;
                     gameover = false;
                     waiting = false;
                 }
+            }
+            else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_m) {
+                    gamestarted = false;
+                    gameover = false;
+                    waiting = false;
             }
         }
     }
@@ -208,9 +258,9 @@ void GameOver2() {
     SDL_Rect bgRect1 = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
     SDL_RenderCopy(renderer, backgroundTexture1, NULL, &bgRect1);
 
-    loadtext("Arial.ttf", 60, red, "Player 2 win", gameoverrect);
-    loadtext("Arial.ttf", 32, red, "Play again", playagainrect);
-    loadtext("Arial.ttf", 32, red, "Exit", exit2rect);
+    loadtext("font/Arial.ttf", 60, red, "Player 2 win", gameoverrect);
+    loadtext("font/Arial.ttf", 32, red, "Play again", playagainrect);
+    loadtext("font/Arial.ttf", 32, red, "Exit", exit2rect);
     SDL_RenderPresent(renderer);
 
     SDL_Event event;
@@ -232,14 +282,16 @@ void GameOver2() {
                 else if (x >= exit2rect.x && x <= exit2rect.x + exit2rect.w&&y >= exit2rect.y && y <= exit2rect.y + exit2rect.h) {
                     running = false;
                     waiting = false;
-                }
-            }
-            else if (event.type == SDL_KEYDOWN){
-                if (event.key.keysym.sym == SDLK_m) {
+                }else if (x >= homerect.x && x <= homerect.x + homerect.w && y >= homerect.y && y <= homerect.y + homerect.h) {
                     gamestarted = false;
                     gameover = false;
                     waiting = false;
                 }
+            }
+            else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_m) {
+                    gamestarted = false;
+                    gameover = false;
+                    waiting = false;
             }
         }
     }
