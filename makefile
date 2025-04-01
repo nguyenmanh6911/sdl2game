@@ -2,12 +2,14 @@
 CC := g++
 
 # Thư mục cài đặt SDL2 trong MSYS2 (ucrt64)
-SDL2_FLAGS := $(shell pkg-config --cflags --libs sdl2 SDL2_ttf SDL2_image SDL2_mixer)
+SDL2_FLAGS := $(shell pkg-config --cflags --libs sdl2 SDL2_ttf SDL2_image SDL2_mixer) -IHeaders
 
-# Tự động tìm tất cả file .cpp trong thư mục
-SRC := $(wildcard *.cpp)
+# Tự động tìm tất cả file .cpp trong Resource/ Sources/
+SRC := $(wildcard Resources/*.cpp) $(wildcard Sources/*.cpp)
 OBJ := $(SRC:.cpp=.o)
-OUT := main.exe
+DEP := $(SRC:.cpp=.d)
+OUT := Sources/main.exe
+
 
 # Lệnh mặc định: Build nếu cần rồi chạy
 all: build run
