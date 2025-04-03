@@ -112,7 +112,6 @@ void blockInputFor(int milliseconds) {
 // Hàm hiển thị giao diện trước khi bắt đầu trò chơi
 void beforeGameStarted() {
     //Đặt các biến về mặc định
-    bool checksound = true;
     instructionOpen = false;
     exitpressed = false;
     selected = false;
@@ -186,20 +185,13 @@ void beforeGameStarted() {
 // Hàm render ảnh khi chọn play again
 void ayready() {
     SDL_RenderClear(renderer);
-    SDL_Texture* goTexture = IMG_LoadTexture(renderer,"image/hwga1.png");
-    SDL_Rect goRect = {218, 93, 564, 564};
-
-    renderTexture(goTexture,goRect);
-    SDL_RenderPresent(renderer);
-    SDL_Delay(1000);
-
     SDL_RenderClear(renderer);
 
     SDL_Texture* readyTexture = IMG_LoadTexture(renderer,"image/ready1.png");
     SDL_Rect readyRect = {250, 125, 500, 500};
     renderTexture(readyTexture,readyRect);
         SDL_RenderPresent(renderer);
-        SDL_Delay(1000);
+        SDL_Delay(1500);
 }
 
 // Hàm được gọi khi người chơi thua ở chế độ chơi 1 người

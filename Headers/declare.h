@@ -77,10 +77,12 @@ extern SDL_Color purple;
 
 extern bool running;
 extern bool gamestarted;
+extern bool checksound;
 extern bool gameover;
 extern bool instructionOpen;
 extern bool exitpressed;
 extern bool selected;
+extern bool gothighestscore;
 extern int bgPosition;
 extern int frame;
 extern int score;

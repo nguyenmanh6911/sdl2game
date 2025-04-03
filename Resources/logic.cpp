@@ -28,6 +28,7 @@ bool checkvacham(SDL_Rect a, SDL_Rect b) {
 void resetFor1PlayerMode() {
         gamestarted = true;
         gameover = false;
+        gothighestscore=false;
         score=0;
         checkhealth=2;
         health=1;
@@ -81,6 +82,7 @@ void resetToMainMenu() {
     //Đặt lại trạng thái trò chơi về ban đầu
         gamestarted = false;
         gameover = false;
+        gothighestscore=false;
         winner=0;
         score=0;
         level=0;

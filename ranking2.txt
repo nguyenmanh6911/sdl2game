@@ -1,5 +1,5 @@
-EUGER,9
-Ruby,7
-Ruby,7
-EUGER,7
-TEIL,5
+Adrian,15
+Amelia,15
+Felix,15
+Miranda,13
+SERENA,10

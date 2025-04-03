@@ -9,7 +9,10 @@
 
 // Gọi hàm khi người chơi chọn level 1
 void Game_Level1() {
-    highestscore = get_highest_score(level); // Lấy điểm cao nhất level đang chơi
+    if (!gothighestscore) {
+        highestscore = get_highest_score(level); // Lấy điểm cao nhất level đang chơi
+        gothighestscore=true;
+    }
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT)
@@ -40,7 +43,9 @@ void Game_Level1() {
             score++;
             Mix_PlayChannel(-1, soundting_ting, 0);
             pipes[i].pass = true;
-            highestscore = max(score, highestscore);
+            if (score > highestscore) {
+                highestscore = score;
+            }
         }
 
         SDL_Rect Ong_tren = { pipes[i].x, 0, CHIEU_RONG_ONG, pipes[i].height };
@@ -49,8 +54,6 @@ void Game_Level1() {
         if ((checkvacham(bird, Ong_tren) || checkvacham(bird, Ong_duoi)) && !gameover) {
             Mix_PlayChannel(-1, soundvacham, 0);
             gameover = true;
-            saveScore(playerName1, score,level); // Lưu điểm hiện tại
-            saveTop5Scores(level);               // Sắp xếp lại file ranking
         }
     }
 
@@ -58,8 +61,11 @@ void Game_Level1() {
     if ((bird.y + bird.h > SCREEN_HEIGHT || bird.y < 0) && !gameover) {
         Mix_PlayChannel(-1, soundvacham, 0);
         gameover = true;
-        saveScore(playerName1, score,level);
-        saveTop5Scores(level);
+    }
+
+    if (gameover) {
+        saveScore(playerName1, score, level); // Lưu điểm hiện tại
+        saveTop5Scores(level);                // Sắp xếp lại file ranking
     }
 
     SDL_RenderClear(renderer);
@@ -89,14 +95,17 @@ void Game_Level1() {
         SDL_RenderCopy(renderer, highestscoreTexture, NULL, &highestscorerect);
 
     SDL_RenderPresent(renderer);
-    SDL_Delay(16);
+    SDL_Delay(8);
     frame = (frame + 1) % SO_KHUNG_HINH;
     if (frame >= SO_KHUNG_HINH) frame = 0;
 }
 
 //Gọi hàm khi người chơi chọn level 2
 void Game_Level2() {
-    highestscore = get_highest_score(level); // Lấy điểm cao nhất level đang chơi
+    if (!gothighestscore) {
+        highestscore = get_highest_score(level); // Lấy điểm cao nhất level đang chơi
+        gothighestscore=true;
+    }
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT)
@@ -138,8 +147,6 @@ void Game_Level2() {
             health--;
             if (health == 0) {
                 gameover = true;
-                saveScore(playerName1, score,level);
-                saveTop5Scores(level);
             } else {
                 resetwhileplay(); // Hàm reset khi số health > 0
             }
@@ -173,11 +180,9 @@ void Game_Level2() {
     
         if (checkvacham(bird, bombrect)&& !gameover) {
             health--;
-           Mix_PlayChannel(-1, explode, 0);
+           Mix_PlayChannel(-1, soundvacham, 0);
            if (health == 0) {
             gameover = true;
-            saveScore(playerName1, score,level);
-            saveTop5Scores(level);
         } else {
            resetwhileplay();
         }
@@ -209,13 +214,16 @@ void Game_Level2() {
         Mix_PlayChannel(-1,soundvacham, 0);
         if (health == 0) {
             gameover = true;
-            saveScore(playerName1, score,level); // Lưu điểm hiện tại
-            saveTop5Scores(level); // Sắp xếp lại ranking
         } else {
             resetwhileplay();
         }
     }
 
+    if (gameover) {
+        saveScore(playerName1, score, level); // Lưu điểm hiện tại
+        saveTop5Scores(level);                // Sắp xếp lại file ranking
+    }
+    
     SDL_RenderClear(renderer);
     scrollingbackground(backgroundTexture);
 
@@ -266,7 +274,10 @@ void Game_Level2() {
 
 // Gọi hàm khi người chơi chọn level 3
 void Game_Level3() {
-    highestscore = get_highest_score(level); 
+    if (!gothighestscore) {
+        highestscore = get_highest_score(level); // Lấy điểm cao nhất level đang chơi
+        gothighestscore=true;
+    }
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT)
@@ -307,8 +318,6 @@ void Game_Level3() {
             health--;
             if (health == 0) {
                 gameover = true;
-                saveScore(playerName1, score,level);
-                saveTop5Scores(level);
             } else {
                 resetwhileplay();
             }
@@ -341,11 +350,9 @@ void Game_Level3() {
     
         if (checkvacham(bird, bombrect)&& !gameover) {
             health--;
-           Mix_PlayChannel(-1, explode, 0);
+           Mix_PlayChannel(-1, soundvacham, 0);
            if (health == 0) {
             gameover = true;
-            saveScore(playerName1, score,level);
-            saveTop5Scores(level);
         } else {
            resetwhileplay();
         }
@@ -377,13 +384,15 @@ void Game_Level3() {
         Mix_PlayChannel(-1, soundvacham, 0);
         if (health == 0) {
             gameover = true;
-            saveScore(playerName1, score,level);
-            saveTop5Scores(level);
         } else {
             resetwhileplay();
         }
     }
 
+    if (gameover) {
+        saveScore(playerName1, score, level); // Lưu điểm hiện tại
+        saveTop5Scores(level);                // Sắp xếp lại file ranking
+    }
 
     SDL_RenderClear(renderer);
     scrollingbackground(backgroundTexture);

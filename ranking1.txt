@@ -1,5 +1,5 @@
-Hanna,10
-ALBERT,6
-BUCK,5
-PIENUT,5
-RUBY,3
+Hessy,21
+Damian,20
+Harley,18
+GALICK,14
+Serena,10

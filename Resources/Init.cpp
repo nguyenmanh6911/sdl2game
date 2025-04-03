@@ -47,8 +47,8 @@ void init () {
     // Tải âm thanh
     Mix_OpenAudio (44100,MIX_DEFAULT_FORMAT,2,4096);
     music=Mix_LoadMUS("sound/birds-isaiah658.ogg");
-    soundflap=Mix_LoadWAV("sound/flapping1.wav");
-    soundvacham=Mix_LoadWAV("sound/fb_collision_refined.wav");
+    soundflap=Mix_LoadWAV("sound/flapping4.wav");
+    soundvacham=Mix_LoadWAV("sound/fb_collision_refined1.wav");
     soundting_ting=Mix_LoadWAV("sound/ting_ting.wav");
     explode=Mix_LoadWAV("sound/explosion.wav");
     Mix_PlayMusic(music,-1);
