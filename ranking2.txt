@@ -1,0 +1,5 @@
+EUGER,9
+Ruby,7
+Ruby,7
+EUGER,7
+TEIL,5

@@ -10,6 +10,7 @@
 
 using namespace std;
 
+
 int main(int argc, char* argv[]) {
     srand(time(0));
     init();
@@ -20,7 +21,7 @@ int main(int argc, char* argv[]) {
         else if(gamestarted==true && gameover==false && gamemode==1&&level==2) Game_Level2();
         else if(gamestarted==true && gameover==false && gamemode==1&&level==3) Game_Level3();
         else if (gamestarted==true&&gameover==false&&gamemode==2) Mode2Player();
-        else if (gamestarted==true && gameover==true&&gamemode==1) GameOverFor1PlayerMode();
+        else if (gamestarted==true && gameover==true&&gamemode==1) GameOverFor1PlayerMode(level);
         else if (gameover == true && gamestarted == true && gamemode == 2) GameOverFor2PlayerMode(winner);
     }
 

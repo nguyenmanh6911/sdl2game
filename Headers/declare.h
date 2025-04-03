@@ -11,7 +11,10 @@
 #include <ctime>
 #include <thread>
 #include <atomic>
+#include <algorithm>
 #include <string>
+#include <sstream>
+#include <fstream>
 
 using namespace std;
 
@@ -42,9 +45,10 @@ extern SDL_Renderer* renderer;
 extern TTF_Font* font;
 extern TTF_Font* font1;
 extern Mix_Music* music;
-extern Mix_Chunk* effect1;
-extern Mix_Chunk *effect2;
-extern Mix_Chunk *effect3;
+extern Mix_Chunk* soundflap;
+extern Mix_Chunk *soundvacham;
+extern Mix_Chunk *soundting_ting;
+extern Mix_Chunk *explode;
 extern SDL_Texture* backgroundTexture;
 extern SDL_Texture *birdTexture;
 extern SDL_Texture* birdTexture1;
@@ -56,25 +60,29 @@ extern SDL_Texture *backgroundTexture1;
 extern SDL_Texture *backgroundTexture2;
 extern SDL_Texture* soundimage;
 extern SDL_Texture *muteimage;
+extern SDL_Texture* rankimage;
 extern SDL_Texture* scoreTexture;
 extern SDL_Texture *highestscoreTexture;
 extern SDL_Texture* homeimage;
+extern SDL_Texture* returnimage;
 extern SDL_Texture* heart1;
 extern SDL_Texture* heart2;
 extern SDL_Texture* heart3;
 extern atomic<bool> instructionWindowRunning;
 
+
 extern SDL_Color red;
 extern SDL_Color white;
+extern SDL_Color purple;
 
 extern bool running;
 extern bool gamestarted;
 extern bool gameover;
 extern bool instructionOpen;
 extern bool exitpressed;
+extern bool selected;
 extern int bgPosition;
 extern int frame;
-extern int frame1;
 extern int score;
 extern int highestscore;
 extern int van_toc;
@@ -105,15 +113,17 @@ extern SDL_Rect scorerect1;
 extern SDL_Rect mode1;
 extern SDL_Rect mode2;
 extern SDL_Rect highestscorerect;
+extern SDL_Rect winnerect;
 extern SDL_Rect homerect;
 extern SDL_Rect bombrect;
+extern SDL_Rect rankrect;
+extern SDL_Rect returnrect;
 extern SDL_Rect healthrect;
 extern SDL_Rect heartrect1;
 extern SDL_Rect heartrect2;
 extern SDL_Rect heartrect3;
 
 extern SDL_Rect animation[SO_KHUNG_HINH];
-extern SDL_Rect animation1[SO_KHUNG_HINH1];
 
 extern string scoreText;
 extern string highestscoreText;
@@ -137,7 +147,6 @@ struct PlayerScore {
     int score;
 };
 
-extern vector<PlayerScore> rankings;
 extern vector <Pipe> pipes;
 extern vector <Bomb> bombs;
 extern vector <Health> healths;

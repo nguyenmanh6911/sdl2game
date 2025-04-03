@@ -14,7 +14,7 @@ SDL_Texture* loadTexture(const char* filename);
 
 void loadtext( const char* fontstyle, int size, SDL_Color color, const char* s, SDL_Rect flappybirdrect);
 
-void loadtext1(SDL_Renderer* targetRenderer, const char* fontFile, int size, SDL_Color color, const char* text, int x, int y);
+void loadtext_Realsize(SDL_Renderer* targetRenderer, const char* fontFile, int size, SDL_Color color, const char* text, int x, int y);
 
 void renderfullscreen(SDL_Texture* texture, int x, int y);
 

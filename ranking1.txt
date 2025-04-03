@@ -1,0 +1,5 @@
+Hanna,10
+ALBERT,6
+BUCK,5
+PIENUT,5
+RUBY,3

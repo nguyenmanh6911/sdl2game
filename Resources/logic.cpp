@@ -78,21 +78,34 @@ void resetFor2PlayerMode() {
 
 // Hàm reset khi người chơi chọn quay trở lại menu ban đầu 
 void resetToMainMenu() {
+    //Đặt lại trạng thái trò chơi về ban đầu
         gamestarted = false;
         gameover = false;
+        winner=0;
         score=0;
         level=0;
         checkhealth=2;
         health=1;
+    //Đặt lại vị trí của chim
         bird.y = SCREEN_HEIGHT / 2;
+        bird1.y = SCREEN_HEIGHT / 2;
+        bird2.y = SCREEN_HEIGHT / 2;
+    //Đặt vận tốc về 0
         van_toc = 0;
+        van_toc1 = 0;
+        van_toc2 = 0;
     
+    //Xóa các đối tượng trong game
         pipes.clear();
         bombs.clear();
         healths.clear();
+        playerName1.clear();
+        playerName2.clear();
+
+    //Tạo lại các ống, bom và health
         for (int i = 0; i < 3; i++) {
             int height = rand() % (SCREEN_HEIGHT - KHOANG_CACH_GIUA_HAI_ONG - 100) + 50;
-            pipes.push_back({ SCREEN_WIDTH + i * 300, height });
+            pipes.push_back({ SCREEN_WIDTH + i * 400, height });
         }
         
         for (int i = 0; i < 3; i++) {

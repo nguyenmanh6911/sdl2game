@@ -14,7 +14,7 @@ void beforeGameStarted();
 
 void ayready();
 
-void GameOverFor1PlayerMode();
+void GameOverFor1PlayerMode(int level);
 
 void GameOverFor2PlayerMode(int winner);
 

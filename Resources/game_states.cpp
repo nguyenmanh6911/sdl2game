@@ -4,13 +4,18 @@
 #include "graphic.h"
 #include "logic.h"
 #include "game.h"   
+#include "entername.h"
 #include "destroy.h"
+#include "ranking.h"
 #include "instruction.h"
 
 // Hàm đếm ngược
 void countdown() { 
+    // Đánh dấu màn hình hướng dẫn và các tùy chọn đã được chọn
     instructionOpen = true;
     exitpressed = true;
+    selected = true;
+
     for (int i = 3; i > 0; i--) {
         SDL_RenderClear(renderer);
 
@@ -36,7 +41,7 @@ void countdown() {
     renderTexture(goTexture,goRect);
 
     SDL_RenderPresent(renderer);
-    SDL_Delay(1500);
+    SDL_Delay(1000);
 }
 
 // Hàm chọn cấp độ
@@ -55,7 +60,9 @@ void chooselevel() {
             if (event.type == SDL_QUIT) {
                 running = false;
                 choosing = false;
-            } else if (event.type == SDL_MOUSEBUTTONDOWN) {
+            }
+            //Xử lí sự kiện nhấn chuột 
+            else if (event.type == SDL_MOUSEBUTTONDOWN) {
                 int x = event.button.x, y = event.button.y;
                 if (x >= level1Rect.x && x <= level1Rect.x + level1Rect.w && y >= level1Rect.y && y <= level1Rect.y + level1Rect.h) {
                     level = 1;
@@ -80,10 +87,12 @@ void chooselevel() {
     SDL_DestroyTexture(levelMenuTexture);
 }
 
+// Hàm chặn input 
 void blockInputFor(int milliseconds) {
-    Uint32 start = SDL_GetTicks();
+    Uint32 start = SDL_GetTicks(); // Lưu lại thời điểm bắt đầu
     SDL_Event event;
 
+    // Vòng lặp chạy đến khi hết thời gian truyền vào
     while (SDL_GetTicks() - start < milliseconds) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -91,30 +100,29 @@ void blockInputFor(int milliseconds) {
                 return;
             }
         }
-        SDL_PumpEvents();
+        SDL_PumpEvents(); // Cập nhật trạng thái đầu vào để tránh treo chương trình
+
+        // Xóa các sự kiện nhấn phím và chuột
         SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
         SDL_FlushEvent(SDL_KEYDOWN);
     }
 }
 
 
-// Giao diện trước khi bắt đầu trò chơi
-// Hàm này sẽ hiển thị các lựa chọn cho người chơi như chế độ chơi đơn, chế độ chơi đôi, hướng dẫn và thoát trò chơi.
+// Hàm hiển thị giao diện trước khi bắt đầu trò chơi
 void beforeGameStarted() {
-    bool checksound = 1;
+    //Đặt các biến về mặc định
+    bool checksound = true;
     instructionOpen = false;
     exitpressed = false;
+    selected = false;
+
     while (gamestarted == false && running == true) {
         SDL_RenderClear(renderer);
         SDL_Rect firstbg = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
         SDL_RenderCopy(renderer, backgroundTexture1, NULL, &firstbg);
 
-        //loadtext("font/UncialAntiqua-Regular.ttf",60,red,"Flappy Bird",flappybirdrect);
-        //loadtext("font/Arial.ttf", 40, red, "1 Player", mode1);
-        //loadtext("font/Arial.ttf", 40, red, "2 Player", mode2);
-        //loadtext("font/Arial.ttf", 40, red, "Instruction", instructionrect);
-        //loadtext("font/Arial.ttf", 32, red, "Exit", exit1rect);
-
+        //Bật/tắt âm thanh
         if (checksound == 1) {
             renderTexture(soundimage, soundrect);
         }
@@ -132,14 +140,20 @@ void beforeGameStarted() {
             }
             if (event.type == SDL_MOUSEBUTTONDOWN) {
                 int x = event.button.x, y = event.button.y;
-                if (x >= mode1.x && x <= mode1.x + mode1.w && y >= mode1.y && y <= mode1.y + mode1.h) {
-                    chooselevel();
+                if ((x >= mode1.x && x <= mode1.x + mode1.w && y >= mode1.y && y <= mode1.y + mode1.h) && selected == false) {
                     gamemode = 1;
+                    selected = true;
+                    enterName(playerName1, playerName2, gamemode);
+                    if (!running) return;
+                    chooselevel();
                     countdown();
                     gamestarted = true;
 
-                } else if (x >= mode2.x && x <= mode2.x + mode2.w && y >= mode2.y && y <= mode2.y + mode2.h) {
+                } else if ((x >= mode2.x && x <= mode2.x + mode2.w && y >= mode2.y && y <= mode2.y + mode2.h)&& selected == false) {
                     gamemode = 2;
+                    selected = true;
+                    enterName(playerName1, playerName2, gamemode);
+                    if (!running) return; 
                     countdown();
                     gamestarted = true;
                 }else if (x >= instructionrect.x && x <= instructionrect.x + instructionrect.w && y >= instructionrect.y && y <= instructionrect.y + instructionrect.h) {
@@ -189,26 +203,29 @@ void ayready() {
 }
 
 // Hàm được gọi khi người chơi thua ở chế độ chơi 1 người
-void GameOverFor1PlayerMode() {
+void GameOverFor1PlayerMode(int level) {
     SDL_RenderClear(renderer);
     SDL_Rect bgRect1 = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
     SDL_RenderCopy(renderer, backgroundTexture2, NULL, &bgRect1);
 
-    loadtext1(renderer,"font/UncialAntiqua-Regular.ttf", 100, red, "Game Over", 210,50);
-    loadtext1(renderer,"font/Arial.ttf", 80, red, "Play again", 318,350); 
-    loadtext1(renderer,"font/Arial.ttf", 80, red, "Exit", 420,500); 
-    loadtext1(renderer,"font/arial.ttf", 70, red, scoreText.c_str(), 350,220); 
+    //Load chữ
+    loadtext_Realsize(renderer, "font/UncialAntiqua-Regular.ttf", 100, red, "Game Over", 210, 50);
+    loadtext_Realsize(renderer, "font/Arial.ttf", 80, red, "Play again", 318, 350); 
+    loadtext_Realsize(renderer, "font/Arial.ttf", 80, red, "Exit", 420, 500); 
+    loadtext_Realsize(renderer, "font/arial.ttf", 70, red, scoreText.c_str(), 350, 220); 
 
     renderTexture(homeimage, homerect);
+    renderTexture(rankimage, rankrect);
 
     SDL_RenderPresent(renderer);
 
-    blockInputFor(2000); // Chặn input trong 2 giây
+    blockInputFor(1000); // Chặn input trong 1 giây
 
+    bool waiting = true;
+    bool showRanking = false; // Biến để kiểm soát hiển thị Ranking
 
     SDL_Event event;
-    bool waiting = true;
-    while (waiting) { 
+    while (waiting) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
@@ -229,12 +246,43 @@ void GameOverFor1PlayerMode() {
                     resetToMainMenu();
                     waiting = false;
                 }
+                else if (x >= rankrect.x && x <= rankrect.x + rankrect.w && y >= rankrect.y && y <= rankrect.y + rankrect.h) {
+                    showRanking=true; // Chuyển sang hiển thị Ranking
+                }
+                else if ((x >= returnrect.x && x <= returnrect.x + returnrect.w && y >= returnrect.y && y <= returnrect.y + returnrect.h )&& showRanking) {
+                    showRanking=false; // Quay lại màn hình Game Over
+                }
             }
-            else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_m) { 
-                resetToMainMenu();
-                waiting = false;
+            else if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_m) { 
+                    resetToMainMenu();
+                    waiting = false;
+                } 
+                else if (event.key.keysym.sym == SDLK_r && !showRanking) { 
+                    showRanking = true; // Chuyển sang hiển thị Ranking
+                }
+                else if (event.key.keysym.sym == SDLK_ESCAPE && showRanking) {
+                    showRanking = false; // Quay lại màn hình Game Over
+                }
             }
         }
+
+        SDL_RenderClear(renderer);
+        if (showRanking) {
+            show_ranking(level); // Hàm hiển thị rank tương ứng với level
+        } else {
+            // Hiển thị màn hình Game Over
+            SDL_RenderCopy(renderer, backgroundTexture2, NULL, &bgRect1);
+            loadtext_Realsize(renderer, "font/UncialAntiqua-Regular.ttf", 100, red, "Game Over", 210, 50);
+            loadtext_Realsize(renderer, "font/Arial.ttf", 80, red, "Play again", 318, 350); 
+            loadtext_Realsize(renderer, "font/Arial.ttf", 80, red, "Exit", 420, 500); 
+            loadtext_Realsize(renderer, "font/arial.ttf", 70, red, scoreText.c_str(), 350, 220); 
+            renderTexture(homeimage, homerect);
+            renderTexture(rankimage, rankrect);
+        }
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);
     }
 }
 
@@ -243,17 +291,22 @@ void GameOverFor2PlayerMode(int winner) {
     SDL_RenderClear(renderer);
     SDL_Rect bgRect1 = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
     SDL_RenderCopy(renderer, backgroundTexture2, NULL, &bgRect1);
+    
+    //Cập nhật tên người chơi
+    string winnertext1 = playerName1 + " wins!";
+    string winnertext2 = playerName2 + " wins!";
+    const char* winnerText ="";
+    if (winner == 1) winnerText = winnertext1.c_str();
+    else winnerText= winnertext2.c_str();
 
-    const char* winnerText = (winner == 1) ? "Player 1 win" : "Player 2 wins";
-    loadtext1(renderer, "font/Arial.ttf", 80, red, winnerText, 280, 150);
-    loadtext1(renderer,"font/Arial.ttf", 80, red, "Play again", 340,300);
-    loadtext1(renderer,"font/Arial.ttf", 80, red, "Exit", 450, 450);
+    //Load chữ
+    loadtext ("font/Arial.ttf",80,red,winnerText,winnerect);
+    loadtext_Realsize(renderer,"font/Arial.ttf", 80, red, "Play again", 340,300);
+    loadtext_Realsize(renderer,"font/Arial.ttf", 80, red, "Exit", 450, 450);
     renderTexture(homeimage, homerect);
     SDL_RenderPresent(renderer);
     
-    SDL_Delay(1500);
-    SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
-
+    blockInputFor(1000);
     SDL_Event event;
     bool waiting = true;
 
@@ -265,19 +318,16 @@ void GameOverFor2PlayerMode(int winner) {
             } 
             else if (event.type == SDL_MOUSEBUTTONDOWN) {
                 int x = event.button.x, y = event.button.y;
-                if (x >= playagainrect.x && x <= playagainrect.x + playagainrect.w && 
-                    y >= playagainrect.y && y <= playagainrect.y + playagainrect.h) {
+                if (x >= playagainrect.x && x <= playagainrect.x + playagainrect.w && y >= playagainrect.y && y <= playagainrect.y + playagainrect.h) {
                     ayready();
                     resetFor2PlayerMode();
                     waiting = false;
                 }
-                else if (x >= exit2rect.x && x <= exit2rect.x + exit2rect.w && 
-                         y >= exit2rect.y && y <= exit2rect.y + exit2rect.h) {
+                else if (x >= exit2rect.x && x <= exit2rect.x + exit2rect.w && y >= exit2rect.y && y <= exit2rect.y + exit2rect.h) {
                     running = false;
                     waiting = false;
                 }
-                else if (x >= homerect.x && x <= homerect.x + homerect.w && 
-                         y >= homerect.y && y <= homerect.y + homerect.h) {
+                else if (x >= homerect.x && x <= homerect.x + homerect.w && y >= homerect.y && y <= homerect.y + homerect.h) {
                     resetToMainMenu();
                     waiting = false;
                 }

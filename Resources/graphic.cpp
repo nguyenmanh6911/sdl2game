@@ -7,17 +7,20 @@
 #include "game.h"
 #include "destroy.h"
 
-void renderTexture(SDL_Texture *texture, SDL_Rect rect)
+// Hàm render ảnh
+void renderTexture(SDL_Texture *texture, SDL_Rect rect) 
 {
     SDL_RenderCopy(renderer, texture, NULL, &rect);
 }
     
-void renderfullscreen(SDL_Texture* texture, int x, int y) {
+//Hàm render ảnh fullscreen
+void renderfullscreen(SDL_Texture* texture, int x, int y) {  
     SDL_Rect dest = { x, y, SCREEN_WIDTH, SCREEN_HEIGHT };
     SDL_RenderCopy(renderer, texture, NULL, &dest);
 }
 
-SDL_Texture* loadTexture(const char* filename) {
+//Tải ảnh từ file
+SDL_Texture* loadTexture(const char* filename) { 
     SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, "Loading %s", filename);
     SDL_Texture* texture = IMG_LoadTexture(renderer, filename);
     if (texture == NULL)
@@ -26,40 +29,53 @@ SDL_Texture* loadTexture(const char* filename) {
     return texture;
 }
 
+//Render text lên vị trí có sẵn
 void loadtext( const char* fontstyle, int size, SDL_Color color, const char* s, SDL_Rect flappybirdrect) {
     TTF_Font* font = TTF_OpenFont(fontstyle, size);
+    if (!font) return;
     SDL_Surface* text = TTF_RenderText_Solid(font, s, color);
+    if (!text) {
+        TTF_CloseFont(font);
+        return;
+    }
     SDL_Texture* texttf = SDL_CreateTextureFromSurface(renderer, text);
+    if (!texttf) {
+        SDL_FreeSurface(text);  
+        TTF_CloseFont(font);
+        return;
+    } 
     SDL_RenderCopy(renderer, texttf, NULL, &flappybirdrect);
     SDL_FreeSurface(text);
     SDL_DestroyTexture(texttf);
     TTF_CloseFont(font);
 }
 
-void loadtext1(SDL_Renderer* targetRenderer, const char* fontFile, int size, SDL_Color color, const char* text, int x, int y) {
+//Render text giữ nguyên kích thước
+void loadtext_Realsize(SDL_Renderer* renderer, const char* fontFile, int size, SDL_Color color, const char* text, int x, int y) {
     TTF_Font* font = TTF_OpenFont(fontFile, size);
     if (!font) {
-        std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
         return;
     }
     SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
     if (!surface) {
-        std::cerr << "Failed to create surface: " << TTF_GetError() << std::endl;
         TTF_CloseFont(font);
         return;
     }
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(targetRenderer, surface);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     if (!texture) {
-        std::cerr << "Failed to create texture: " << SDL_GetError() << std::endl;
+        SDL_FreeSurface(surface);
+        TTF_CloseFont(font);
+       return;
     } else {
         SDL_Rect dst = {x, y, surface->w, surface->h};
-        SDL_RenderCopy(targetRenderer, texture, NULL, &dst);
+        SDL_RenderCopy(renderer, texture, NULL, &dst);
         SDL_DestroyTexture(texture);
     }
     SDL_FreeSurface(surface);
     TTF_CloseFont(font);
 }
 
+// Hàm tạo hiệu ứng chuyển động cho background
 void scrollingbackground(SDL_Texture *texture)
 {
     bgPosition -= TOC_DO_DICH_CHUYEN_CUA_MAN;
@@ -68,6 +84,7 @@ void scrollingbackground(SDL_Texture *texture)
     renderfullscreen(texture, bgPosition + SCREEN_WIDTH, 0);
 }
 
+// Hàm render điểm số
 void updateScoreTexture(const string& scoreText, SDL_Texture*& texture, SDL_Rect& rect) {
     if (texture != NULL) {
         SDL_DestroyTexture(texture);
