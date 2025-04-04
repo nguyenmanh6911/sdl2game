@@ -81,7 +81,7 @@ extern bool checksound;
 extern bool gameover;
 extern bool instructionOpen;
 extern bool exitpressed;
-extern bool selected;
+extern bool mode_selected;
 extern bool gothighestscore;
 extern int bgPosition;
 extern int frame;

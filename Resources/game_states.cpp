@@ -11,11 +11,6 @@
 
 // Hàm đếm ngược
 void countdown() { 
-    // Đánh dấu màn hình hướng dẫn và các tùy chọn đã được chọn
-    instructionOpen = true;
-    exitpressed = true;
-    selected = true;
-
     for (int i = 3; i > 0; i--) {
         SDL_RenderClear(renderer);
 
@@ -114,7 +109,7 @@ void beforeGameStarted() {
     //Đặt các biến về mặc định
     instructionOpen = false;
     exitpressed = false;
-    selected = false;
+    mode_selected = false;
 
     while (gamestarted == false && running == true) {
         SDL_RenderClear(renderer);
@@ -139,18 +134,25 @@ void beforeGameStarted() {
             }
             if (event.type == SDL_MOUSEBUTTONDOWN) {
                 int x = event.button.x, y = event.button.y;
-                if ((x >= mode1.x && x <= mode1.x + mode1.w && y >= mode1.y && y <= mode1.y + mode1.h) && selected == false) {
+                if ((x >= mode1.x && x <= mode1.x + mode1.w && y >= mode1.y && y <= mode1.y + mode1.h) && mode_selected == false) {
+                    // Đánh dấu màn hình hướng dẫn và các tùy chọn đã được chọn
+                    instructionOpen=true;
+                    exitpressed = true;
+                    mode_selected = true;
                     gamemode = 1;
-                    selected = true;
                     enterName(playerName1, playerName2, gamemode);
                     if (!running) return;
                     chooselevel();
+                    if (!running) return;
                     countdown();
                     gamestarted = true;
 
-                } else if ((x >= mode2.x && x <= mode2.x + mode2.w && y >= mode2.y && y <= mode2.y + mode2.h)&& selected == false) {
+                } else if ((x >= mode2.x && x <= mode2.x + mode2.w && y >= mode2.y && y <= mode2.y + mode2.h)&& mode_selected == false) {
+                    // Đánh dấu màn hình hướng dẫn và các tùy chọn đã được chọn
+                    instructionOpen = true;
+                    exitpressed = true;
+                    mode_selected = true;
                     gamemode = 2;
-                    selected = true;
                     enterName(playerName1, playerName2, gamemode);
                     if (!running) return; 
                     countdown();
@@ -159,7 +161,6 @@ void beforeGameStarted() {
                     if (!instructionOpen) {
                         thread instructionThread(showInstructionWindow);
                         instructionThread.detach();
-                        instructionOpen = true;
                     }
                  }
                 else if (x >= soundrect.x && x <= soundrect.x + soundrect.w && y >= soundrect.y && y <= soundrect.y + soundrect.h) {
