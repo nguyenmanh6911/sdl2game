@@ -1,5 +1,5 @@
-Adrian,15
-Amelia,15
-Felix,15
-Miranda,13
-SERENA,10
+Adrian,11
+Kai,10
+Amelia,9
+Felix,8
+Walker,6

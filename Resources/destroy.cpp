@@ -4,7 +4,7 @@
 #include "graphic.h"
 #include "game_states.h"    
 #include "game.h"   
-#include "logic.h"  
+#include "reset.h"  
 
 
 void destroy () {

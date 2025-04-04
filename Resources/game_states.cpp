@@ -2,7 +2,7 @@
 #include "Init.h"
 #include "game_states.h"
 #include "graphic.h"
-#include "logic.h"
+#include "reset.h"
 #include "game.h"   
 #include "entername.h"
 #include "destroy.h"
@@ -227,22 +227,30 @@ void GameOverFor1PlayerMode(int level) {
             else if (event.type == SDL_MOUSEBUTTONDOWN) {
                 int x = event.button.x, y = event.button.y;
                 if (x >= playagainrect1.x && x <= playagainrect1.x + playagainrect1.w && y >= playagainrect1.y && y <= playagainrect1.y + playagainrect1.h) {
+                    if(!playagain_pressed) {
                     ayready();
                     resetFor1PlayerMode();
                     waiting = false;
+                    }
                 }
                 else if (x >= exit2rect.x && x <= exit2rect.x + exit2rect.w && y >= exit2rect.y && y <= exit2rect.y + exit2rect.h) {
+                    if (!exit2pressed){
                     running = false;
                     waiting = false;
+                    }
                 }
                 else if (x >= homerect.x && x <= homerect.x + homerect.w && y >= homerect.y && y <= homerect.y + homerect.h) {
                     resetToMainMenu();
                     waiting = false;
                 }
                 else if (x >= rankrect.x && x <= rankrect.x + rankrect.w && y >= rankrect.y && y <= rankrect.y + rankrect.h) {
+                    playagain_pressed=true;
+                    exit2pressed=true;
                     showRanking=true; // Chuyển sang hiển thị Ranking
                 }
                 else if ((x >= returnrect.x && x <= returnrect.x + returnrect.w && y >= returnrect.y && y <= returnrect.y + returnrect.h )&& showRanking) {
+                    playagain_pressed=false;
+                    exit2pressed=false;
                     showRanking=false; // Quay lại màn hình Game Over
                 }
             }
@@ -252,9 +260,13 @@ void GameOverFor1PlayerMode(int level) {
                     waiting = false;
                 } 
                 else if (event.key.keysym.sym == SDLK_r && !showRanking) { 
+                    playagain_pressed=true;
+                    exit2pressed=true;
                     showRanking = true; // Chuyển sang hiển thị Ranking
                 }
                 else if (event.key.keysym.sym == SDLK_ESCAPE && showRanking) {
+                    playagain_pressed=false;
+                    exit2pressed=false;
                     showRanking = false; // Quay lại màn hình Game Over
                 }
             }

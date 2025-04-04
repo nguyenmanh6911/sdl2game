@@ -1,28 +1,12 @@
 #include "declare.h"
 #include "Init.h"
-#include "logic.h"
+#include "reset.h"
 #include "graphic.h"
 #include "game_states.h"
 #include "game.h"
 #include "destroy.h"
 
 // Hàm kiểm tra va chạm giữa 2 vật
-bool checkvacham(SDL_Rect a, SDL_Rect b) {
-    int leftA = a.x;
-    int rightA = a.x + a.w;
-    int topA = a.y;
-    int bottomA = a.y + a.h;
-
-    int leftB = b.x;
-    int rightB = b.x + b.w;
-    int topB = b.y;
-    int bottomB = b.y + b.h;
-
-    if (bottomA <= topB || topA >= bottomB || rightA <= leftB || leftA >= rightB) {
-        return false;
-    }
-    return true;
-}
 
 // Hàm reset khi người chơi chọn Play again ở chế độ chơi 1 người
 void resetFor1PlayerMode() {
@@ -152,3 +136,9 @@ void resetwhileplay () {
         
     }
 }
+
+void reset_frame () {
+    frame = (frame + 1) % SO_KHUNG_HINH;
+    if (frame >= SO_KHUNG_HINH) frame = 0;
+}
+

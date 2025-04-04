@@ -2,7 +2,7 @@
 #include "Init.h"
 #include "graphic.h"
 #include "game_states.h"
-#include "logic.h"
+#include "reset.h"
 #include "game.h"
 #include "destroy.h"
 #include "instruction.h"

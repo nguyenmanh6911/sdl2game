@@ -1,5 +1,5 @@
 GATE,14
-Vincent,14
-VYLL,13
-GARE,12
-LODW,10
+Vincent,12
+VYLL,10
+mk,9
+GARE,8
